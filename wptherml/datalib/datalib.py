@@ -15,32 +15,35 @@ def Material_RI(lam, arg):
     ## but we might need it in nm or microns
     l_nm = lam*1e9
     lmic = lam*1e6
-    if (arg=='HfO2'):
+    if (arg=='HfO2_model'):
         A = 187178
         B = 9993.46
         C = 0.0173801
         D = 1.939999
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
-    elif (arg=='Al2O3'):
+    elif (arg=='Al2O3_model'):
         A = 187178
         B = 9993.46
         C = 0.0173801
         D = 1.69999
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
     ### This model works well for glass into near IR
-    elif (arg=='SiO2' and lam[len(lam)-1]<5000e-9):
+    elif (arg=='SiO2_model' ):
+        print('This model for SiO2 works well for lambda < 5um (NIR)' )
         A = 187178
         B = 9993.46
         C = 0.0173801
         D = 1.45
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
-    elif (arg=='TiO2') and lam[len(lam)-1]<5000e-9:
+    elif (arg=='TiO2_model'):
+        print('This model for TiO2 works well for lambda < 5um (NIR)' )
         A = 187178
         B = 9993.46
         C = 0.0173801
         D = 2.4
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
-    elif (arg=='AlN' and lam[len(lam)-1]<10000e-9):
+    elif (arg=='AlN_model'):
+        print('This model for AlN works well for lambda < 10um (NIR)' )
         A = 1.859
         B = 0.3401
         n = A + B/(lmic*lmic) + 0j/lmic
@@ -53,7 +56,7 @@ def Material_RI(lam, arg):
         n = Read_RI_from_File(lam, arg)
     elif (arg=='Ag' or arg=='Au' or arg=='Pd' or arg=='Pt' or arg=='SiO2'):
         n = Read_RI_from_File(lam, arg)
-    elif (arg=='AlN' or arg=='Si' or arg=='TiO2'):
+    elif (arg=='AlN' or arg=='Si' or arg=='TiO2' or arg=='SiC' or arg == 'Si3N4'):
         n = Read_RI_from_File(lam, arg)
     ### default is air    
     else:
@@ -109,6 +112,10 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/datalib/AlN_IR.txt')
     elif (matname=='Si'):
         a = np.loadtxt('wptherml/datalib/Si_Schinke.txt')
+    elif (matname=='SiC'):
+        a = np.loadtxt('wptherml/datalib/SiC_Larruquert.txt')       
+    elif (matname=='Si3N4'):
+        a = np.loadtxt('wptherml/datalib/Si3N4_Philipp.txt')           
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
     else:

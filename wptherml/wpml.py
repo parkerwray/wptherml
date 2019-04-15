@@ -20,6 +20,7 @@ class multilayer:
     ### initializer
     #def __init__(self, mode, inputfile):
     def __init__(self, args):
+        
         ### set up some default attributes
         self.result = 1
         self.mode = args.get('mode')
@@ -91,6 +92,8 @@ class multilayer:
         ### Now that structure is defined and we have the lambda array, 
         ### allocate other arrays!
         ### Always need normal arrays
+        self.reflectivity_amplitude_array = np.zeros(len(self.lambda_array),dtype=complex)
+        self.transmissivity_amplitude_array = np.zeros(len(self.lambda_array),dtype=complex)
         self.reflectivity_array = np.zeros(len(self.lambda_array))
         self.transmissivity_array = np.zeros(len(self.lambda_array))
         self.emissivity_array = np.zeros(len(self.lambda_array))
@@ -115,6 +118,10 @@ class multilayer:
             self.t = 0.5*(self.x + 1)*(b - a) + a
             self.w = self.w * 0.5 * (b-a)
             
+            self.reflectivity_amplitude_array_p = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+            self.reflectivity_amplitude_array_s = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+            self.transmissivity_amplitude_array_p = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+            self.transmissivity_amplitude_array_s = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
             self.reflectivity_array_p = np.zeros((self.deg,len(self.lambda_array)))
             self.reflectivity_array_s = np.zeros((self.deg,len(self.lambda_array)))
             self.transmissivity_array_p = np.zeros((self.deg,len(self.lambda_array)))
@@ -208,6 +215,7 @@ class multilayer:
             M = tmm.tmm(k0, self.theta, self.pol, nc, self.d)
             ### get t amplitude
             t = 1./M["M11"]
+            self.transmissivity_amplitude_array[i] = t
             ### get incident/final angle
             ti = M["theta_i"]
             tL = M["theta_L"]
@@ -215,12 +223,12 @@ class multilayer:
             fac = nc[len(self.d)-1]*np.cos(tL)/(nc[0]*np.cos(ti))
             ### get reflection amplitude
             r = M["M21"]/M["M11"]
+            self.reflectivity_amplitude_array[i] = r
             ### get Reflectivity
             self.reflectivity_array[i] = np.real(r * np.conj(r))
             ### get Transmissivity
             self.transmissivity_array[i] = np.real(t*np.conj(t)*fac)
             self.emissivity_array[i] = 1 - self.reflectivity_array[i] - self.transmissivity_array[i]
-
         return 1
     
     def angular_fresnel(self, lambda_0):
@@ -250,6 +258,7 @@ class multilayer:
             fac = nc[len(self.d)-1]*np.cos(tL)/(nc[0]*np.cos(ti))
             ### get reflection amplitude
             r = M["M21"]/M["M11"]
+            
             ### get Reflectivity
             self.r_vs_theta[i] = np.real(r * np.conj(r))
             ### get Transmissivity
@@ -312,6 +321,11 @@ class multilayer:
                 rp = Mp["M21"]/Mp["M11"]
                 rs = Ms["M21"]/Ms["M11"]
                 
+                self.transmissivity_amplitude_array_p[j][i] = tp
+                self.transmissivity_amplitude_array_s[j][i] = ts
+                self.reflectivity_amplitude_array_p[j][i] = rp
+                self.reflectivity_amplitude_array_s[j][i] = rs
+                                                             
                 ### Reflectivity for each polarization
                 self.reflectivity_array_p[j][i] = np.real(rp * np.conj(rp))
                 self.reflectivity_array_s[j][i] = np.real(rs * np.conj(rs))
@@ -564,7 +578,7 @@ class multilayer:
     ### Define the RI of a specified layer to be an alloy
     ### between two specified materials, mat1 and mat2,
     ### using Bruggenmans approximation
-    def layer_alloy(self, layer, fraction, mat1, mat2, model):
+    def layer_alloy(self, layer, fraction, mat1, mat2, model, plot=False):
         ### Bruggeman model must be specified
         if (model=='Bruggeman'):
             ### Get RIs of two materials... mat1 can be 
@@ -620,7 +634,8 @@ class multilayer:
                 num = epsD*(2*f*(epsM-epsD) + epsM + 2*epsD)
                 denom = 2*epsD + epsM + f*(epsD-epsM)
                 self.n[layer][i] = np.sqrt((num/denom))
-                
+        if (plot == True):
+            self.plot_index_alloy(n_1, n_2, self.n[layer])
         return 1
     
     #### Sets the refractive index for a specified layer
@@ -639,7 +654,8 @@ class multilayer:
             eps_lr = 1 + omega_p**2/(omega_0**2 - omega**2 - ci*omega*gamma)
             self.n[layer][i] = np.sqrt(eps_lr)
         return 1
-    ### METHODS FOR PLOTTING DATA!
+    
+    ##################### METHODS FOR PLOTTING DATA! ##########################
     
     ### Plot thermal emission
     def plot_te(self):
@@ -661,10 +677,127 @@ class multilayer:
     def plot_emissivity(self):
         plt.plot(self.lambda_array*1e9, self.emissivity_array, 'blue')
         string = "Emissivity"
-        plt.legend(("Emissivity"))
+        plt.legend(string)
         plt.show()
         return 1   
     
+#    def plot_ellipsometery(self):
+#        
+#    
+#            self.reflectivity_amplitude_array_p = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+#            self.reflectivity_amplitude_array_s = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+#            self.transmissivity_amplitude_array_p = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+#            self.transmissivity_amplitude_array_s = np.zeros((self.deg,len(self.lambda_array)),dtype=complex)
+    
+    
+    def plot_index(self, layer):
+        lam = self.lambda_array
+        lam_min = np.min(lam)
+        lam_max = np.max(lam)
+        
+        if (lam_min < 1000e-9):
+            self.plot_index_vis(layer)
+        
+        if (lam_max > 1000e-9):
+            self.plot_index_ir(layer)
+        return 1
+
+            
+    def plot_index_vis(self, layer):
+        lam = self.lambda_array
+        RI = self.layer_ri(layer)
+        lam_min = np.min(lam)
+        lam_max = np.max(lam)
+        nm = 1e+9  
+        #  Plot the real part of the refractive index in the visible regime  
+        mask = (lam>=lam_min) & (lam <= np.min([1000e-9, lam_max]))
+        plt.fig, ax1 = plt.subplots()
+        ax1.plot(lam[mask]*nm, RI[mask].real, 'k-')
+        ax1.autoscale()
+        ax1.set_ylabel('n', color = 'k')  
+        ax1.set_xlabel('Wavelength (nm)')    
+        ax2 = ax1.twinx()
+        ax2.plot(lam[mask]*nm, RI[mask].imag, 'r:')
+        ax2.autoscale()
+        ax2.set_ylabel('k', color = 'r')        
+        plt.title('Refractive index in the visible')
+        plt.show()
+        return 1
+
+    def plot_index_ir(self,layer):
+        lam = self.lambda_array
+        RI = self.layer_ri(layer)
+        lam_min = np.min(lam)
+        lam_max = np.max(lam)
+        um = 1e+6  
+        #  Plot the real part of the refractive index in the Infrared regime   
+        mask = (lam<=lam_max) & (lam >= np.max([1000e-9, lam_min]))
+        plt.fig, ax1 = plt.subplots()
+        ax1.plot(lam[mask]*um, RI[mask].real, 'k-')
+        ax1.autoscale()
+        ax1.set_ylabel('n', color = 'k')  
+        ax1.set_xlabel('Wavelength (nm)')    
+        ax2 = ax1.twinx()
+        ax2.plot(lam[mask]*um, RI[mask].imag, 'r:')
+        ax2.autoscale()
+        ax2.set_ylabel('k', color = 'r')        
+        plt.title('Refractive index in the IR')
+        plt.show()
+        return 1
+    
+    
+    def plot_index_alloy(self, mat1, mat2, RI_alloy):
+        lam = self.lambda_array
+       # RI_alloy = self.layer_alloy(layer, fraction, mat1, mat2, model)
+        lam_min = np.min(lam)
+        lam_max = np.max(lam)
+        
+        if (lam_min < 1000e-9):
+            nm = 1e+9  
+            #  Plot the real part of the refractive index in the visible regime  
+            mask = (lam>=lam_min) & (lam <= np.min([1000e-9, lam_max]))
+            plt.fig, ax1 = plt.subplots()
+            ax1.plot(lam[mask]*nm, mat1[mask].real, 'k--')
+            ax1.plot(lam[mask]*nm, mat2[mask].real, 'k-.')
+            ax1.plot(lam[mask]*nm, RI_alloy[mask].real, 'k-')
+            ax1.autoscale()
+            ax1.set_ylabel('n', color = 'k')  
+            ax1.set_xlabel('Wavelength (nm)')    
+            ax2 = ax1.twinx()
+            ax2.plot(lam[mask]*nm, mat1[mask].imag, 'r--')
+            ax2.plot(lam[mask]*nm, mat2[mask].imag, 'r-.')            
+            ax2.plot(lam[mask]*nm, RI_alloy[mask].imag, 'r-')            
+            ax2.autoscale()
+            ax2.set_ylabel('k', color = 'r')        
+            ax1.legend(['Hoast', 'Inclusion', 'Effective'],bbox_to_anchor=(1.04,1))
+            plt.tight_layout(rect=[0,0,0.99,1])
+            plt.title('Refractive index in the visible')
+            plt.show()
+
+        if (lam_max > 1000e-9):
+            um = 1e+6  
+            #  Plot the real part of the refractive index in the Infrared regime   
+            mask = (lam<=lam_max) & (lam >= np.max([1000e-9, lam_min]))
+            plt.fig, ax1 = plt.subplots()
+            ax1.plot(lam[mask]*um, mat1[mask].real, 'k--')
+            ax1.plot(lam[mask]*um, mat2[mask].real, 'k-.')
+            ax1.plot(lam[mask]*um, RI_alloy[mask].real, 'k-')
+            ax1.autoscale()
+            ax1.set_ylabel('n', color = 'k')  
+            ax1.set_xlabel('Wavelength (nm)')    
+            ax2 = ax1.twinx()
+            ax2.plot(lam[mask]*um, mat1[mask].imag, 'r--')
+            ax2.plot(lam[mask]*um, mat2[mask].imag, 'r-.')            
+            ax2.plot(lam[mask]*um, RI_alloy[mask].imag, 'r-')            
+            ax2.autoscale()
+            ax2.set_ylabel('k', color = 'r')        
+            ax1.legend(['Hoast', 'Inclusion', 'Effective'],bbox_to_anchor=(1.04,1))
+            plt.tight_layout(rect=[0,0,0.99,1])            
+            plt.title('Refractive index in the IR')
+            plt.show()
+        return 1
+        
+        
     ### RESONANCE METHODS
     
     ### Find SPP mode for a structure at a particular
