@@ -16,8 +16,8 @@ import numpy as np
 
 
 
-lam = np.linspace(150e-9,20000e-9,1000)
-m = datalib.Material_RI(lam, 'SiC')
+lam = np.linspace(150e-9,14000e-9,1000)
+m = datalib.Material_RI(lam, 'SiO2')
 
 
 lam_min = np.min(lam)
