@@ -67,7 +67,8 @@ np_slab.layer_alloy(layer,fill_fraction,'Air','Si3N4','MG', plot = False)
 layer = 2
 #np_slab.layer_alloy(layer,fill_fraction,'Air','SiO2','Bruggeman', plot = True)
 np_slab.layer_alloy(layer,fill_fraction,'Air','SiO2','MG', plot = False)
-
+np_slab.thermal_emission_ea()
+np_slab.cooling_power()
 
 #%%
 # Calculate standard spectra related to radiative cooling

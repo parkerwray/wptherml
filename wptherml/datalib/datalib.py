@@ -1,6 +1,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import hilbert
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 q = 1.60217662e-19
@@ -21,6 +22,7 @@ def Material_RI(lam, arg):
         C = 0.0173801
         D = 1.939999
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
+        
     elif (arg=='Al2O3_model'):
         A = 187178
         B = 9993.46
@@ -28,6 +30,7 @@ def Material_RI(lam, arg):
         D = 1.69999
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
     ### This model works well for glass into near IR
+    
     elif (arg=='SiO2_model' ):
         print('This model for SiO2 works well for lambda < 5um (NIR)' )
         A = 187178
@@ -35,6 +38,7 @@ def Material_RI(lam, arg):
         C = 0.0173801
         D = 1.45
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
+        
     elif (arg=='TiO2_model'):
         print('This model for TiO2 works well for lambda < 5um (NIR)' )
         A = 187178
@@ -42,27 +46,63 @@ def Material_RI(lam, arg):
         C = 0.0173801
         D = 2.4
         n = A/(l_nm**4) + B/(l_nm**2) + C/l_nm + D + 0j/l_nm
+        
     elif (arg=='AlN_model'):
         print('This model for AlN works well for lambda < 10um (NIR)' )
         A = 1.859
         B = 0.3401
         n = A + B/(lmic*lmic) + 0j/lmic
+        
     elif (arg=='Air'):
         A = 0.
         n = A/lam + 0j/lam + 1
-    elif (arg=='TiN'):
+        
+    elif (arg=='TiN_model'):
         n = TiN_Drude_Lorentz(lam)
+        
+#    elif (arg=='SiO2NP_model' and lam[len(lam)-1]<=3000e-9):   
+#        print('This model is currently not working' )
+#        #Egap = 8.9
+#        e0 =  0.9757
+#        e1 = 0 #sellmeier(lam, 0.72507, 0.068404e-6)
+#        e2 = 0 #sellmeier(lam, 0.22796, 0.11624e-6)       
+#        e3 = 0 #sellmeier(lam, 0.71872, 9.8962e-6)  
+#        e4 = gauss(lam,1.4922, 11.27, 21157)         
+#        e = e0+e1+e2+e3+e4
+#        n = np.sqrt(e)
+
     elif (arg=='W' or arg=='HfN' or arg=='Re' or arg=='Rh' or arg=='Ru'):
         n = Read_RI_from_File(lam, arg)
     elif (arg=='Ag' or arg=='Au' or arg=='Pd' or arg=='Pt' or arg=='SiO2'):
         n = Read_RI_from_File(lam, arg)
     elif (arg=='AlN' or arg=='Si' or arg=='TiO2' or arg=='SiC' or arg == 'Si3N4'):
         n = Read_RI_from_File(lam, arg)
+    elif (arg=='RC0_1A_Si' or arg=='RC0_1A_SiO2nox' or arg=='RC0_1A_SiO2brugg' or arg=='RC0_1A_SiO2rough'):
+        n = Read_RI_from_File(lam, arg)        
+
+        
     ### default is air    
     else:
         A = 0.
         n = A/lam + 0j/lam + 1
     return n
+
+### Not working
+#def sellmeier(lam, A, lam0):
+#    eps = (A*lam**2)/(lam**2-lam0**2)
+#    return eps
+#
+### Not working
+#def gauss(lam, A, En, Br):
+#    c = 299792458
+#    h = 4.135667516*10**(-15)
+#    E = h*c/lam
+#    ei = A*(np.exp(-(E-En)/Br))**2+A*(np.exp(-(E+En)/Br))**2
+#    er =  1.0 + hilbert(ei)/np.pi
+#    return er+1j*ei
+
+
+
 
 def TiN_Drude_Lorentz(lam):
     ci = 0+1j
@@ -84,6 +124,7 @@ def TiN_Drude_Lorentz(lam):
 
 
 def Read_RI_from_File(lam, matname):
+
     if (matname=='W'):
         a = np.loadtxt('wptherml/datalib/W_Palik_RI_f.txt')
     elif (matname=='TiO2'):  #Need to re-order HfN data
@@ -120,6 +161,9 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
     else:
         a = np.loadtxt('wptherml/datalib/W_Palik_RI_f.txt')
+        
+        
+        
     ### now that we have read in the text, interpolate/extrapolate RI
     datlam = np.zeros(len(a))
     datn   = np.zeros(len(a))
@@ -142,6 +186,55 @@ def Read_RI_from_File(lam, matname):
     ### for complex RI array for each value of lambda
     n = yn + 1j*yk
     return n
+
+## The functions below load Uv-Vis-MIR-FIR data from measured samples
+
+#def RC0_1A(lam)
+#    ## This is a sample of SiO2 NP's on Si. The expected thickness was supposed
+#    ## to be 500nm. Instead, profilometry measured from 2um-1um depending on which
+#    ## edge you were measuring from. The width from the two edges was ~0.75cm.
+#    
+#    a = np.loadtxt('wptherml/datalib/RC0_1B_SiO2_NP_Absorption.txt')
+#    x = np.zeros(len(a))
+#    y = np.zeros(len(a))
+#
+#    for i in range(0,len(a)):
+#        x[i] = a[i][0]
+#        y[i] = a[i][1]
+#        
+#    datlam = x
+#    databs = y
+#    order = 1
+#    s = InterpolatedUnivariateSpline(datlam, databs, k=order)
+#    z = s(lam)
+#    
+#    plt.plot(x,y,'blue')
+#    plt.plot(lam, z, 'r--')
+#    plt.show()
+#    return z
+#
+#
+#def RC0_1B(lam):
+#
+#    a = np.loadtxt('wptherml/datalib/RC0_1B_SiO2_NP_Absorption.txt')
+#    x = np.zeros(len(a))
+#    y = np.zeros(len(a))
+#
+#    for i in range(0,len(a)):
+#        x[i] = a[i][0]
+#        y[i] = a[i][1]
+#        
+#    datlam = x
+#    databs = y
+#    order = 1
+#    s = InterpolatedUnivariateSpline(datlam, databs, k=order)
+#    z = s(lam)
+#    
+#    plt.plot(x,y,'blue')
+#    plt.plot(lam, z, 'r--')
+#    plt.show()
+#    return z
+
 
 ### returns interpolated/extrapolated EQE of monocrystaline silicon PV cells
 ### given an input array of wavelengths

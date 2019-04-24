@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 11 13:43:32 2019
 
 This code creates a multilayer to look at
 1) Ellipsometric variables
@@ -20,10 +19,11 @@ from wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 import numpy as np
 
-d_np_film1 = 1e-6
-d_np_film2 = 1e-6
+d_np_film1 = 1.0e-6
+d_np_film2 = 1.0e-6
 d_film1 = 3e-6
 d_film2 = 650e-9
+d_film3 = 0 #200e-9
 d_reflector = 200e-9
 d_substrate = 200e-6 # Note, very large substrates cause an overflow effect.
  
@@ -36,10 +36,10 @@ structure = {
         'Temperature': 300,
         ### actual materials the structure is made from
         ### values are stored in the attribute self.n
-        'Material_List': ['Air', 'Si3N4', 'SiO2', 'SiO2', 'Si3N4', 'Ag', 'Air'],
+        'Material_List': ['Air', 'SiO2', 'Si', 'Air'],
         ### thickness of each layer... terminal layers must be set to zero
         ### values are stored in attribute self.d
-        'Thickness_List': [0, d_np_film1, d_np_film2, d_film1, d_film2, d_reflector, 0],
+        'Thickness_List': [0, 1e-6,1e-6,  0],
          ### range of wavelengths optical properties will be calculated for
          ### values are stored in the array self.lam
         'Lambda_List': [250e-9, 14000e-9, 1000],
@@ -61,18 +61,12 @@ np_slab = multilayer(structure)
 # Change one of the layers to an effective index
 fill_fraction = 0.3
 layer = 1
-np_slab.layer_alloy(layer,fill_fraction,'Air','Si3N4','Bruggeman', plot = False)
-#np_slab.layer_alloy(layer,fill_fraction,'Air','Si3N4','MG', plot = False)
-layer = 2
-np_slab.layer_alloy(layer,fill_fraction,'Air','SiO2','Bruggeman', plot = False)
-#np_slab.layer_alloy(layer,fill_fraction,'Air','Si3N4','MG', plot = False)
+np_slab.layer_alloy(layer,fill_fraction,'Air','SiO2','Bruggeman', plot = True)
+#np_slab.layer_alloy(layer,fill_fraction,'Air','SiO2','MG', plot = False)
 np_slab.thermal_emission_ea()
 np_slab.cooling_power()
 
-
-
-
-
+#%%
 # Calculate standard spectra related to radiative cooling
 AM = datalib.AM(np_slab.lambda_array)
 T_atm = datalib.ATData(np_slab.lambda_array)
