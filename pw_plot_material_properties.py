@@ -50,12 +50,6 @@ if (lam_min <= 1000e-9):
     plt.title('Epsilon in the visible')
     plt.show()
     
-    
-    
-    
-    
-    
-
 if (lam_max > 1000e-9):
     um = 1e+6  
     #  Plot the real part of the refractive index in the Infrared regime   
