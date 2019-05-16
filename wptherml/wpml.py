@@ -5,12 +5,12 @@ Created on Sat Nov 10 21:07:22 2018
 
 @author: jay
 """
-from wptherml import tmm
-from wptherml import colorlib
-from wptherml import coolinglib
-from wptherml import stpvlib
-from wptherml import lightlib
-from wptherml.datalib import datalib
+from wptherml.wptherml import tmm
+from wptherml.wptherml import colorlib
+from wptherml.wptherml import coolinglib
+from wptherml.wptherml import stpvlib
+from wptherml.wptherml import lightlib
+from wptherml.wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 from scipy import integrate
 

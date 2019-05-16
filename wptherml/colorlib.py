@@ -1,5 +1,5 @@
-from wptherml.numlib import numlib
-from wptherml.datalib import datalib
+from wptherml.wptherml.numlib import numlib
+from wptherml.wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np

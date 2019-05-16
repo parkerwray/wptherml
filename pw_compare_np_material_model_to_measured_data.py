@@ -15,8 +15,8 @@ well as the TMM and effective index code can reproduce measurement results.
 
 
 
-from wptherml.wpml import multilayer
-from wptherml.datalib import datalib
+from wptherml.wptherml.wpml import multilayer
+from wptherml.wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 import numpy as np
 

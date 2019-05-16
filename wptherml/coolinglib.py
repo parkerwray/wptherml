@@ -6,12 +6,12 @@ Created on Thu Oct 11 13:14:46 2018
 """
 
 ###cooling lib
-from wptherml import tmm
-from wptherml.datalib import datalib
-from wptherml import stpvlib
+from wptherml.wptherml import tmm
+from wptherml.wptherml.datalib import datalib
+from wptherml.wptherml import stpvlib
 import numpy as np
 import matplotlib.pyplot as plt
-from wptherml.numlib import numlib
+from wptherml.wptherml.numlib import numlib
 
 
 

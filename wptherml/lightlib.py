@@ -14,8 +14,8 @@ This function passed the following tests:
 """
 
 ###Lightlib
-from wptherml.numlib import numlib
-from wptherml.datalib import datalib
+from wptherml.wptherml.numlib import numlib
+from wptherml.wptherml.datalib import datalib
 import numpy as np
 
 def Lum_efficiency(lam, TE):

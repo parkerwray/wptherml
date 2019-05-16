@@ -15,8 +15,8 @@ well as the TMM and effective index code can reproduce measurement results.
 
 
 
-from wptherml.wpml import multilayer
-from wptherml.datalib import datalib
+from wptherml.wptherml.wpml import multilayer
+from wptherml.wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -41,7 +41,7 @@ structure = {
         'Material_List': ['Air','Si3N4','SiO2','SiO2','Si3N4', 'Ag', 'Air'],
         ### thickness of each layer... terminal layers must be set to zero
         ### values are stored in attribute self.d
-        'Thickness_List': [0, 1.0e-6, 1.0e-6, 3.0e-6, 650e-9, 2.0e-6, 0], # You can not have the back reflector as the last layer!!!
+        'Thickness_List': [0, 1.0e-6, 1.0e-6, 3.0e-6, 650e-9, 200.0e-9, 0], # You can not have the back reflector as the last layer!!!
          ### range of wavelengths optical properties will be calculated for
          ### values are stored in the array self.lam
         'Lambda_List': [250e-9, 15000e-9, 5000],
@@ -87,20 +87,33 @@ BB = datalib.BB(np_slab.lambda_array, np_slab.T_ml)
 ### plot results!
 plt.figure()
 mask = (np_slab.lambda_array >= 3000e-9) & (np_slab.lambda_array <= 30000e-9)
-plt.plot(np_slab.lambda_array[mask]*1e6, T_atm[mask], 'cyan')
-plt.plot(np_slab.lambda_array[mask]*1e6, np_slab.emissivity_array[mask], 'red')
+plt.plot(np_slab.lambda_array[mask]*1e6, T_atm[mask]*100, 'k', alpha = 0.1, label = 'AM1.5 or \n Atmospheric \n transmittance')
+plt.plot(np_slab.lambda_array[mask]*1e6, np_slab.emissivity_array[mask]*100, 'r', label = 'Structure \n absorption')
 #plt.plot(np_slab.lambda_array[mask]*1e6, np_slab.thermal_emission_array[mask], 'red')
+plt.xlabel('Wavelength (nm)')
+plt.ylabel('Absorption (%)')
+plt.tight_layout(rect=[-0.10,0,0.75,1])
+plt.legend(bbox_to_anchor=(1.04, 1))
+plt.show() 
 
 plt.figure()
 mask = (np_slab.lambda_array >= 250e-9) & (np_slab.lambda_array <= 3000e-9)
-plt.plot(np_slab.lambda_array[mask]*1e6, np_slab.emissivity_array[mask], 'blue')
-plt.plot(np_slab.lambda_array[mask]*1e6, AM[mask]/(1.4*1e9), 'red')
+plt.plot(np_slab.lambda_array[mask]*1e6, np_slab.emissivity_array[mask]*100, 'r', label = 'Structure \n absorption')
+plt.plot(np_slab.lambda_array[mask]*1e6, 100*AM[mask]/(1.4*1e9), 'k', alpha = 0.1, label = 'AM1.5 or \n Atmospheric \n transmittance')
+plt.xlabel('Wavelength (um)')
+plt.ylabel('Absorption (%)')
+plt.tight_layout(rect=[-0.10,0,0.75,1])
+plt.legend(bbox_to_anchor=(1.04, 1))
+plt.show() 
 
 
-print("Radiative Power (cooling) is ",np_slab.radiative_power_val, "W/m^2")
-print("Absorbed Solar Power (warming) is ",np_slab.solar_power_val, "W/m^2")
-print("Absorbed Atmospheric Radiation (warming) is ",np_slab.atmospheric_power_val, "W/m^2")
-print("Net Power flux out of the structure is ",np_slab.cooling_power_val, "W/m^2")
+
+
+
+#print("Radiative Power (cooling) is ",np_slab.radiative_power_val, "W/m^2")
+#print("Absorbed Solar Power (warming) is ",np_slab.solar_power_val, "W/m^2")
+#print("Absorbed Atmospheric Radiation (warming) is ",np_slab.atmospheric_power_val, "W/m^2")
+#print("Net Power flux out of the structure is ",np_slab.cooling_power_val, "W/m^2")
 
 
 #np_slab.layer_alloy(layer,fill_fraction,'Air','Au','Maxwell-Garnett', plot = True)

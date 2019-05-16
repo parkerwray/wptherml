@@ -61,6 +61,7 @@ def Material_RI(lam, arg):
         n = TiN_Drude_Lorentz(lam)
 
     elif (arg=='a-Al2O3'
+          or arg == 'Al2O3'
           or arg=='Ag'
           or arg=='AlN'
           or arg=='Au'
@@ -92,6 +93,10 @@ def Material_RI(lam, arg):
           or arg=='RC0_1A_SiO2rough'):
         n = Read_RI_from_File(lam, arg)            
 
+    elif (arg=='RC0_1D_Al2O3'
+          or arg == 'RC0_1D_Si'):
+        n = Read_RI_from_File(lam, arg) 
+
     ### default is air    
     else:
         A = 0.
@@ -116,6 +121,13 @@ def TiN_Drude_Lorentz(lam):
     eps = eps + amp*br*en/(en*en - E*E - ci*E*br)
     return np.sqrt(eps)
 
+def Constant_Index(lam, n_const = 1, k_const = 0):
+       ### now that we have read in the text, interpolate/extrapolate RI
+    datn   = n_const*np.ones(len(lam))
+    datk   = k_const*np.ones(len(lam))
+    ### for complex RI array for each value of lambda
+    n = datn + 1j*datk
+    return n 
 
 
 def Read_RI_from_File(lam, matname):
@@ -129,8 +141,25 @@ def Read_RI_from_File(lam, matname):
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
             
+    elif (matname=='Al2O3'): 
+        print('Made from concatinating 2 ellipsometery models. Discontinuity at 2um. Vis Al2O3 is calid for 300nm-2um, IR Al2O3 is valid for lda = 2um - 30um' )
+          
+        a_vis = np.loadtxt('wptherml/wptherml/datalib/al2o3_cl.txt')            
+        a_ir = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g.txt')    
+
+        a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+        
+        
+        
+        
+#        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g.txt')
+#        for i in range(0,len(a)):
+#            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m            
+                  
     elif (matname=='TiO2'): 
-        a = np.loadtxt('wptherml/datalib/TiO2_Siefke.txt')
+        a = np.loadtxt('wptherml/wptherml/datalib/TiO2_Siefke.txt')
         
     elif (matname=='Re'):
         a = np.loadtxt('wptherml/datalib/Re_Palik_RI_f.txt')
@@ -142,10 +171,10 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/datalib/Rh_Palik_RI_f.txt')
         
     elif (matname=='Ag' and lam[len(lam)-1]<=1000e-9):
-        a = np.loadtxt('wptherml/datalib/Ag_JC_RI_f.txt')
+        a = np.loadtxt('wptherml/wptherml/datalib/Ag_JC_RI_f.txt')
         
     elif (matname=='Ag' and lam[len(lam)-1]>1000e-9):
-        a = np.loadtxt('wptherml/datalib/Ag_Yang.txt')
+        a = np.loadtxt('wptherml/wptherml/datalib/Ag_Yang.txt')
         
     elif (matname=='Au' and lam[len(lam)-1]<=1000e-9):
         a = np.loadtxt('wptherml/datalib/Au_JC_RI_f.txt')
@@ -169,10 +198,10 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/wptherml/datalib/Si_Schinke.txt')
         
     elif (matname=='SiC'):
-        a = np.loadtxt('wptherml/datalib/SiC_Larruquert.txt')  
+        a = np.loadtxt('wptherml/wptherml/datalib/SiC_Larruquert.txt')  
         
     elif (matname=='Si3N4'):
-        a = np.loadtxt('wptherml/datalib/Si3N4_Philipp.txt')  
+        a = np.loadtxt('wptherml/wptherml/datalib/Si3N4_Philipp.txt')  
          
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
@@ -188,11 +217,14 @@ def Read_RI_from_File(lam, matname):
         # There is some UV absorption to match spectroscopic data.
         # Still need bruggeman model 
         # wavelength is in nm, so we convert to SI
-        a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_ir_sio2_np_nk_v3.txt')    
 
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
-            
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003
+                   
     elif (matname=='RC0_1B_Si'):
         # This is a custom bulk visible Si properties 
         # The purpose of this is because the measured Si substrate is more 
@@ -207,6 +239,38 @@ def Read_RI_from_File(lam, matname):
         a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+
+    elif (matname=='RC0_1D_Al2O3'):
+        # This is a custom bulk visible Si properties 
+        # The purpose of this is because the measured Si substrate is more 
+        # reflective in the visible compared to the bulk material model that 
+        # was previously used. ALSO, the bulk SI data doesn't go far into the 
+        # IR! The loaded n,k data is from ellipsometery, which is saved in nm. 
+        # so we convert to SI units!
+        
+        a_vis = np.loadtxt('wptherml/wptherml/datalib/rc0_1d_al2o3_vis_nk.txt')   
+        #a_vis = np.loadtxt('wptherml/wptherml/datalib/al2o3_palik.txt')           
+        a_ir = np.loadtxt('wptherml/wptherml/datalib/rc0_1d_al2o3_1_nk.txt')    
+        
+        a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+
+    elif (matname=='RC0_1D_Si'):
+        # This is a custom bulk visible Si properties 
+        # The purpose of this is because the measured Si substrate is more 
+        # reflective in the visible compared to the bulk material model that 
+        # was previously used. ALSO, the bulk SI data doesn't go far into the 
+        # IR! The loaded n,k data is from ellipsometery, which is saved in nm. 
+        # so we convert to SI units!
+        
+        a_vis = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_si_1_nk.txt')        
+        a_ir = np.loadtxt('wptherml/wptherml/datalib/rc0_1d_si_1_nk.txt')    
+        
+        a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+
 
 
     else:
@@ -255,14 +319,17 @@ def Read_RI_from_File(lam, matname):
 def Read_spectra_from_File(matname):
     
     if (matname=='RC0_1B_SiO2'):
-        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_sample_vis_TR_FR_DR.txt')
-        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_sample_ir_R_and_T.txt')      
+        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_sample_vis_TR_FR_DR_TT_FT_DT.txt')
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_sample_ir_R_and_T.txt')    
+        
     elif (matname=='RC0_1B_Si'):  #Need to re-order HfN data
-        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_ref_vis_TR_FR_DR.txt')
+        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_ref_vis_TR_FR_DR_TT_FT_DT.txt')
         ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1B_ref_ir_R_and_T.txt')
+        
     elif (matname=='RC0_1D_Al2O3'):
         vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_sample_vis_TR_FR_DR.txt')
-        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_sample_ir_R_and_T.txt')      
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_sample_ir_R_and_T.txt')   
+        
     elif (matname=='RC0_1D_Si'):  #Need to re-order HfN data
         vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_ref_vis_TR_FR_DR.txt')
         ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_ref_ir_R_and_T.txt')        

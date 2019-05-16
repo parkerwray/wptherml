@@ -15,8 +15,8 @@ well as the TMM and effective index code can reproduce measurement results.
 
 
 
-from wptherml.wpml import multilayer
-from wptherml.datalib import datalib
+from wptherml.wptherml.wpml import multilayer
+from wptherml.wptherml.datalib import datalib
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -37,10 +37,10 @@ structure = {
         'Temperature': 300,
         ### actual materials the structure is made from
         ### values are stored in the attribute self.n
-        'Material_List': ['Air', 'Si3N4', 'SiO2', 'SiO2', 'Si3N4', 'Air'],
+        'Material_List': ['Air', 'Si3N4', 'SiO2', 'SiO2', 'Si3N4', 'Au', 'Air'],
         ### thickness of each layer... terminal layers must be set to zero
         ### values are stored in attribute self.d
-        'Thickness_List': [0, d_np_film1, d_np_film2, d_film1, d_film2, 0],
+        'Thickness_List': [0, 1.0e-6, 1.0e-6, 3e-6, 650e-9,200e-9, 0],
          ### range of wavelengths optical properties will be calculated for
          ### values are stored in the array self.lam
         'Lambda_List': [250e-9, 14000e-9, 1000],
