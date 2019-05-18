@@ -132,74 +132,78 @@ class multilayer:
             self.thermal_emission_array_s = np.zeros((self.deg,len(self.lambda_array)))
 
 
-            
-        ### Get all far-field Fresnel-related quantities:
-        ### Reflectivity, Transmissivity, and Absorptivity/Emissivity spectra
-        ### Always call the normal version
-        self.fresnel()
+    def tmm(self):            
+            ### Get all far-field Fresnel-related quantities:
+            ### Reflectivity, Transmissivity, and Absorptivity/Emissivity spectra
+            ### Always call the normal version
+            self.fresnel()  ################### I COMENTED THIS OUT, COULD CAUSE RUNTIME PROBLEMS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
         
-        ### If user selected explict_angle option, call the EA methods as well
-        if (self.explicit_angle):
-            ### get the Reflectivity, Transmissivity, and Absorptivity/Emissivity
-            ### at the angles from the Gauss-Legendre grid
-            self.fresnel_ea()
-            ### Get the thermal emission at the angles from the
-            ### Gauss-Legendre grid
-            self.thermal_emission_ea()
-        
-
-
-        ### stpv_calc cooling_calc lightbulb_calc color_calc all
-        ### require BB spectrum / thermal emission spectrum
-        if (self.stpv_emitter_calc or self.stpv_absorber_calc or self.cooling_calc or self.lightbulb_calc or self.color_calc):
-            ### The ThermalEmission() method automatically calculates the BB spectrum
-            ### and stores it to self.BBs
-            self.thermal_emission()
-
-        #self.ThermalColor()
-        ### now that default quantitites have been calculated, start
-        ### looking at optional quantities
-        ### want to compute stpv quantities with explicit angle dependence?
-        if (self.stpv_emitter_calc and self.explicit_angle):
-            
-            self.stpv_se_ea()
-            self.stpv_pd_ea()
-            self.stpv_etatpv_ea()
-        ### want no explicit angle dependence?
-        elif (self.stpv_emitter_calc):
-            
-            self.stpv_se()
-            self.stpv_pd()
-            self.stpv_etatpv()
-            
-        if (self.stpv_absorber_calc):
-        
+            ### If user selected explict_angle option, call the EA methods as well
             if (self.explicit_angle):
-                self.stpv_etaabs_ea()
-            else:
-                self.stpv_etaabs()
-            
-        if (self.color_calc):
+                ### get the Reflectivity, Transmissivity, and Absorptivity/Emissivity
+                ### at the angles from the Gauss-Legendre grid
+                self.fresnel_ea()
+            self.update()    
+                
+    def update(self):     
 
-            self.ambient_color()
-            self.thermal_color()
+            ### If user selected explict_angle option, call the EA methods as well
+            if (self.explicit_angle):
+                ### Get the thermal emission at the angles from the
+                ### Gauss-Legendre grid
+                self.thermal_emission_ea()
+
+            ### stpv_calc cooling_calc lightbulb_calc color_calc all
+            ### require BB spectrum / thermal emission spectrum
+            if (self.stpv_emitter_calc or self.stpv_absorber_calc or self.cooling_calc or self.lightbulb_calc or self.color_calc):
+                ### The ThermalEmission() method automatically calculates the BB spectrum
+                ### and stores it to self.BBs
+                self.thermal_emission()
+    
+            #self.ThermalColor()
+            ### now that default quantitites have been calculated, start
+            ### looking at optional quantities
+            ### want to compute stpv quantities with explicit angle dependence?
+            if (self.stpv_emitter_calc and self.explicit_angle):
+                
+                self.stpv_se_ea()
+                self.stpv_pd_ea()
+                self.stpv_etatpv_ea()
+            ### want no explicit angle dependence?
+            elif (self.stpv_emitter_calc):
+                
+                self.stpv_se()
+                self.stpv_pd()
+                self.stpv_etatpv()
+                
+            if (self.stpv_absorber_calc):
             
-        if (self.lightbulb_calc):
+                if (self.explicit_angle):
+                    self.stpv_etaabs_ea()
+                else:
+                    self.stpv_etaabs()
+                
+            if (self.color_calc):
+    
+                self.ambient_color()
+                self.thermal_color()
+                
+            if (self.lightbulb_calc):
+                
+                ### Luminous efficiency and efficacy calcs here
+                self.luminous_efficiency()
+                ### need to validate method for computing luminous efficacy
+                #self.luminous_efficacy()
             
-            ### Luminous efficiency and efficacy calcs here
-            self.luminous_efficiency()
-            ### need to validate method for computing luminous efficacy
-            #self.luminous_efficacy()
-        
-        if (self.cooling_calc):
-            
-            ### will compute the following quantites:
-            ### self.radiative_power_val -> at current T_ml, power emitted / unit area
-            ### self.solar_power_val -> power absorbed from sun / unit area
-            ### self.atmospherical_power_val -> power absorbed from atm at T_amb / unit area
-            ### self.cooling_power -> net power flux / unit area from balance of all the above
-            self.cooling_power()
-            
+            if (self.cooling_calc):
+                
+                ### will compute the following quantites:
+                ### self.radiative_power_val -> at current T_ml, power emitted / unit area
+                ### self.solar_power_val -> power absorbed from sun / unit area
+                ### self.atmospherical_power_val -> power absorbed from atm at T_amb / unit area
+                ### self.cooling_power -> net power flux / unit area from balance of all the above
+                self.cooling_power()
+                
         
     ### Methods to compute all Fresnel quantities at once!
     ### to compute the emissivity, one needs to compute R and T anyway
@@ -501,6 +505,86 @@ class multilayer:
         self.solar_power_val = coolinglib.Psun(self.theta_sun, self.lambda_array, self.n, self.d)
         self.cooling_power_val = self.radiative_power_val - self.atmospheric_power_val - self.solar_power_val
         return 1
+    
+    ### This method finds the temperature such that the net power flux out of the structure is ~0
+    def steady_state_temperature(self):
+        ### Find the steady state temperature
+        inc10 = 10
+        inc50 = 50
+        ticker = 0
+        while abs(self.cooling_power_val) > 0.05:
+            
+            if  abs(self.cooling_power_val) > 100:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc10
+                else: 
+                    self.T_ml = self.T_ml - inc50              
+            
+            elif  abs(self.cooling_power_val) > 30:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc10/10
+                else: 
+                    self.T_ml = self.T_ml - inc50/10   
+        
+            elif  abs(self.cooling_power_val) > 10:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc50/100
+                else: 
+                    self.T_ml = self.T_ml - inc10/10
+                    
+            elif  abs(self.cooling_power_val) < 10:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc10/100
+                else: 
+                    self.T_ml = self.T_ml - inc50/100   
+                    
+            elif  abs(self.cooling_power_val) < 5:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc50/1000
+                else: 
+                    self.T_ml = self.T_ml - inc10/100                       
+
+            elif  abs(self.cooling_power_val) < 1:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc10/10000
+                else: 
+                    self.T_ml = self.T_ml - inc10/1000  
+            
+            elif  abs(self.cooling_power_val) < 0.1:
+                if np.sign(self.cooling_power_val) < 0:
+                    self.T_ml = self.T_ml + inc10/100000
+                else: 
+                    self.T_ml = self.T_ml - inc10/10000                       
+            else:
+                self.T_ml = self.T_ml + inc10/100000
+                    
+                    
+        #    if  abs(np_slab.cooling_power_val) < 0.1:
+        #        if np.sign(np_slab.cooling_power_val) < 0:
+        #            np_slab.T_ml = np_slab.T_ml + 0.0001
+        #        else: 
+        #            np_slab.T_ml = np_slab.T_ml - 0.001               
+                    
+         
+            ticker = ticker + 1  
+            if (ticker%10) == 0:
+                print('At', ticker,' itterations the temperature is ', self.T_ml, 'K')
+                print('At', ticker,' itterations the cooling power is ',self.cooling_power_val, 'W/m^2' ) 
+                if abs(self.cooling_power_val) < 1:
+                    inc10 = inc10/2
+                    inc50 = inc50/2
+            if ticker > 300:
+                break
+#            self.thermal_emission_ea()
+#            self.cooling_power()       
+            self.update()
+        print('The steady state temperature is ', self.T_ml, 'K \n (', self.T_ml-273.15 ,'C)')
+        print('The temperature differential is ', self.T_ml-self.T_amb, 'C')
+        print('The net power flux is ',self.cooling_power_val, 'W/m^2' )
+
+        return self.T_ml
+    
+
     
     ''' MISCELLANEOUS METHODS TO MANIPULATE THE STRUCTURE
         OR GATHER DATA ABOUT THE STRUCTURE '''

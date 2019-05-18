@@ -67,6 +67,7 @@ def Material_RI(lam, arg):
           or arg=='Au'
           or arg=='HfN' 
           or arg=='Pd'
+          or arg =='PDMS'
           or arg=='Pt'
           or arg=='Re' 
           or arg=='Rh' 
@@ -188,6 +189,12 @@ def Read_RI_from_File(lam, matname):
     elif (matname=='Pt'):
         a = np.loadtxt('wptherml/datalib/Pt_Palik_RI_f.txt')
         
+    elif (matname=='PDMS'): 
+        print('PDMS valid for 350nm-56um' )         
+        a = np.loadtxt('wptherml/wptherml/datalib/PDMS_Vis_to_IR_Schneider_Querry.txt')            
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-6 # lda data in um, convert to m
+        
     elif (matname=='SiO2'):
         a = np.loadtxt('wptherml/wptherml/datalib/SiO2_IR.txt')
         
@@ -201,8 +208,15 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/wptherml/datalib/SiC_Larruquert.txt')  
         
     elif (matname=='Si3N4'):
-        a = np.loadtxt('wptherml/wptherml/datalib/Si3N4_Philipp.txt')  
-         
+        #a = np.loadtxt('wptherml/wptherml/datalib/Si3N4_Philipp.txt')  
+        
+        a_vis = np.loadtxt('wptherml/wptherml/datalib/Si3N4_Phillip_Vis.txt')        
+        a_ir = np.loadtxt('wptherml/wptherml/datalib/si3n4_ir_g.txt')    
+        
+        a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
         
@@ -555,12 +569,18 @@ def AM(lam):  ###lam is x SI is y
     return z
 
 def ATData(lam):
-    a = np.loadtxt('wptherml/wptherml/datalib/ATrans.txt')
+    # This transmittance is probably from Gemini Observatory and is probably wrong for normal areas in the USA
+    #a = np.loadtxt('wptherml/wptherml/datalib/ATrans.txt')
+    
+    #This transmittance was simulated from Lowtran 
+    a = np.loadtxt('wptherml/wptherml/datalib/Lowtran7_IR_Transmittance_US_Standard_200nm_30um_0deg.txt')
+    
     x = np.zeros(len(a))
     y = np.zeros(len(a))
 
     for i in range(0,len(a)):
-        x[i] = a[i][0]*1e-6
+        # x[i] = a[i][0]*1e-6 #convert to SI unit from um if using ATrans.txt
+        x[i] = a[i][0]*1e-9 #convert to SI unit from nm if using Lowtran7... .txt
         y[i] = a[i][1]
     #plt.plot(x,y)
     datlam = x
