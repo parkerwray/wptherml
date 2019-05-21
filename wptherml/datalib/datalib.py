@@ -305,7 +305,7 @@ def Read_RI_from_File(lam, matname):
     datk = datk[unique_idx]
         
     ### use linear interpolation/extrapolation
-    order = 1
+    order = 2
     ### form the interpolator/extrapolator object for datn
     sn = InterpolatedUnivariateSpline(datlam, datn, k=order)
     ### form the interpolator/extrapolator object for datk
