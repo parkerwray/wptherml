@@ -106,14 +106,14 @@ class multilayer:
         self.r_vs_theta = np.zeros(180)
         self.t_vs_theta = np.zeros(180)
         self.eps_vs_theta = np.zeros(180)
-        self.theta_array = np.linspace(0,89.5*np.pi/180, 180)
+        self.theta_array = np.linspace(0,0.1,5) # np.linspace(0,89.5*np.pi/180, 180)
         ### If users selects explicit_angle option, we 
         ### need arrays for R, T, and eps as a function of angle
         ### and polarization, as well
         if (self.explicit_angle):
             ### range is 0 to thetaC
             a = 0
-            b = np.pi/2.
+            b = np.pi/2  #   np.pi/2.
             self.x, self.w = np.polynomial.legendre.leggauss(self.deg)
             self.t = 0.5*(self.x + 1)*(b - a) + a
             self.w = self.w * 0.5 * (b-a)
@@ -979,8 +979,16 @@ class multilayer:
 
     
     def inline_structure(self, args):
-        if 'Lambda_List' in args:
+        if 'Lambda_List' in args:  
             lamlist = args['Lambda_List']
+#            nm = 1e-9
+#            lda_uv = np.linspace(251,370, num = 120) # 1nm resolution
+#            lda_vis = np.linspace(373,1000,num = 210) # 3nm resolution
+#            lda_ir = np.linspace(1100,30000,num = 290) # 100nm resolution
+#            lda = np.concatenate((lda_uv,lda_vis,lda_ir), axis=0)
+             #lda*nm #
+            
+            
             self.lambda_array = np.linspace(lamlist[0],lamlist[1],int(lamlist[2]))
         else:
             print(" Lambda array not specified! ")

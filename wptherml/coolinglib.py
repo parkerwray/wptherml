@@ -65,7 +65,13 @@ def Psun(theta_sun, lam, n, d):
     n_layer = len(d)
     
     ### get Am1.5 spectrum
-    AM = datalib.AM(lam)
+    
+    AMg = datalib.AM15g(lam)
+    AMd = datalib.AM15d(lam)
+    AM = AMg-AMd
+    #AM = datalib.AM(lam)
+    
+    
     ### variables to hold emissivity for s- and p-polarized light
     emissivity_s = 0.
     emissivity_p = 0.
