@@ -24,10 +24,6 @@ def E_atm(theta, lam):
     Eatm = (1-T)**b
     return Eatm
 
-
-
-'finish Prad function to remove error'
-
 def Prad(TEP, TES, lam, theta, w):
     dlam = np.abs(lam[0] - lam[1])
     x = 0

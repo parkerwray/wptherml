@@ -81,7 +81,18 @@ def Material_RI(lam, arg):
           or arg=='W' 
           ):
         n = Read_RI_from_File(lam, arg)
+   
+    elif (arg=='AlOxChar_2A'
+          or arg=='AlOxChar_2C_Oxide'
+          or arg=='AlOxChar_2C_Si'):
+        n = Read_RI_from_File(lam, arg)            
         
+    elif (arg=='AlOxChar_1A'
+          or arg=='AlOxChar_1C_Oxide'
+          or arg=='AlOxChar_1C_Si'):
+        n = Read_RI_from_File(lam, arg)         
+        
+
     elif (arg=='RC0_1A_Si'
           or arg=='RC0_1A_SiO2nox'
           or arg=='RC0_1A_SiO2brugg'
@@ -229,7 +240,129 @@ def Read_RI_from_File(lam, matname):
 
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
+
+    elif (matname=='AlOxChar_2A'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
         
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_2a_v6_nk.txt')    
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_2a_v7_increased_oscillators.txt')  
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v15_regular_permitivity_3p0ff_2857thick.txt')
+        
+        
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v14_low_permitivity_25p8ff_2912nmthick.txt')
+        
+        
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003        
+
+    elif (matname=='AlOxChar_1A'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_1a_v3_nk.txt')  
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v15_regular_permitivity_3p0ff_2857thick.txt')
+        
+        
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v14_low_permitivity_25p8ff_2912nmthick.txt')
+        
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in um, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003   
+
+    elif (matname=='AlOxChar_1C_Oxide'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_oxide_v1_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003  
+
+    elif (matname=='AlOxChar_1C_Si'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_si_v1_nk.txt')  
+            
+    elif (matname=='AlOxChar_2C_Oxide'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/oxide_on_2c_v6_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003               
+            
+    elif (matname=='AlOxChar_2C_Si'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_si_v1_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003            
+       
     elif (matname=='RC0_1B_SiO2'):
         # This is a custom bulk visible SiO2 properties with broadband absorption. 
         # The goal of the broadband abs. is to match spectroscopic data.
@@ -441,7 +574,7 @@ def alloy(lambda_array, fraction, mat1, mat2, model):
     ## Test Generalized effective medium theory
     elif (model=='parker'):
        
-        v = 2
+        v = 1
         f = fraction
         
         if(isinstance(mat1, str)):
@@ -453,11 +586,11 @@ def alloy(lambda_array, fraction, mat1, mat2, model):
         
         for i in range(0,len(lambda_array)):
             if(isinstance(mat1, str)):
-                epsi = n_1[i]*n_1[i]
+                epse = n_1[i]*n_1[i]
             else:
-                epsi = n_1*n_1
+                epse = n_1*n_1
                 
-            epse = n_2[i]*n_2[i] 
+            epsi = n_2[i]*n_2[i] 
             # eps1 = inclusion, eps2 = enviroment
             Y = epsi-epse
             A = v
