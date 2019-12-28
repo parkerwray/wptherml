@@ -53,7 +53,7 @@ class multilayer:
         ### default solar concentration for STPV absorber
         self.solarconc = 600
         ### default is to not use explicit angle dependence of emissivity, etc
-        self.explicit_angle = 0
+        self.explicit_angle = 1
         ### by default, degree of G-L polynomial will not be needed since explicit angle dependence
         ### is not the default but 
         ### we will set it at 7 anyway for now
@@ -499,11 +499,20 @@ class multilayer:
         return 1
     
     ''' METHODS FOR COOLINGLIB !!! '''
-    def cooling_power(self):
-        self.radiative_power_val = coolinglib.Prad(self.thermal_emission_array_p, self.thermal_emission_array_s, self.lambda_array, self.t, self.w)
-        self.atmospheric_power_val = coolinglib.Patm(self.emissivity_array_p, self.emissivity_array_s, self.T_amb, self.lambda_array, self.t, self.w)
-        self.solar_power_val = coolinglib.Psun(self.theta_sun, self.lambda_array, self.n, self.d)
-        self.cooling_power_val = self.radiative_power_val - self.atmospheric_power_val - self.solar_power_val
+    def cooling_power(self, radiative = True, atmospheric = True, solar = True, total = True):
+       
+        if radiative:
+            self.radiative_power_val = coolinglib.Prad(self.thermal_emission_array_p, self.thermal_emission_array_s, self.lambda_array, self.t, self.w)
+        
+        if atmospheric:
+            self.atmospheric_power_val = coolinglib.Patm(self.emissivity_array_p, self.emissivity_array_s, self.T_amb, self.lambda_array, self.t, self.w)
+        
+        if solar:
+            self.solar_power_val = coolinglib.Psun(self.theta_sun, self.lambda_array, self.n, self.d)
+        
+        if total:
+            self.cooling_power_val = self.radiative_power_val - self.atmospheric_power_val - self.solar_power_val
+        
         return 1
     
     ### This method finds the temperature such that the net power flux out of the structure is ~0
@@ -696,6 +705,44 @@ class multilayer:
                     
                 epsBG = (b+flag*srarg)/4.
                 self.n[layer][i] = np.sqrt(epsBG)
+            ## Test Generalized effective medium theory
+        elif (model=='parker'):
+           
+            v = 3
+            f = fraction
+            
+            if(isinstance(mat1, str)):
+                n_1 = datalib.Material_RI(self.lambda_array, mat1)
+            else:
+                n_1 = mat1
+                
+            n_2 = datalib.Material_RI(self.lambda_array, mat2)
+            
+            for i in range(0,len(self.lambda_array)):
+                if(isinstance(mat1, str)):
+                    epse = n_1[i]*n_1[i]
+                else:
+                    epse = n_1*n_1
+                
+                epsi = n_2[i]*n_2[i] 
+                # eps1 = inclusion, eps2 = enviroment
+                Y = epsi-epse
+                A = v
+                B = (3*epse+Y-(1+v)*f*Y)
+                C = -3*epse*Y*f
+                
+                arg = (B*B)-4*A*C
+                srarg = np.sqrt(arg)
+                
+                if (np.imag(arg)<0):
+                    flag = -1
+                else:
+                    flag = 1
+                
+                eps = (-B+flag*srarg)/(2*A)
+                self.n[layer][i] = np.sqrt(epse+eps)        
+
+                
         #### Default is Maxwell-Garnett        
         else:
             if(isinstance(mat1, str)):
@@ -743,6 +790,7 @@ class multilayer:
     
     ### Plot thermal emission
     def plot_te(self):
+        plt.figure, 
         plt.plot(self.lambda_array*1e9, self.thermal_emission_array, 'red')
         string = "Thermal Emission at " + str(self.T_ml) + " K"
         plt.legend(string)
@@ -751,6 +799,7 @@ class multilayer:
     
     ### Plot reflectivity
     def plot_reflectivity(self):
+        plt.figure
         plt.plot(self.lambda_array*1e9, self.reflectivity_array, 'red')
         string = "Reflectivity"
         plt.legend(string)
@@ -759,6 +808,7 @@ class multilayer:
     
     ### Plot emissivity
     def plot_emissivity(self):
+        plt.figure
         plt.plot(self.lambda_array*1e9, self.emissivity_array, 'blue')
         string = "Emissivity"
         plt.legend(string)

@@ -62,6 +62,7 @@ def Material_RI(lam, arg):
 
     elif (arg=='a-Al2O3'
           or arg == 'Al2O3'
+          or arg == 'Al'
           or arg=='Ag'
           or arg=='AlN'
           or arg=='Au'
@@ -80,7 +81,18 @@ def Material_RI(lam, arg):
           or arg=='W' 
           ):
         n = Read_RI_from_File(lam, arg)
+   
+    elif (arg=='AlOxChar_2A'
+          or arg=='AlOxChar_2C_Oxide'
+          or arg=='AlOxChar_2C_Si'):
+        n = Read_RI_from_File(lam, arg)            
         
+    elif (arg=='AlOxChar_1A'
+          or arg=='AlOxChar_1C_Oxide'
+          or arg=='AlOxChar_1C_Si'):
+        n = Read_RI_from_File(lam, arg)         
+        
+
     elif (arg=='RC0_1A_Si'
           or arg=='RC0_1A_SiO2nox'
           or arg=='RC0_1A_SiO2brugg'
@@ -95,7 +107,8 @@ def Material_RI(lam, arg):
         n = Read_RI_from_File(lam, arg)            
 
     elif (arg=='RC0_1D_Al2O3'
-          or arg == 'RC0_1D_Si'):
+          or arg == 'RC0_1D_Si'
+          or arg == 'RC1_1B_Si3N4'):
         n = Read_RI_from_File(lam, arg) 
 
     ### default is air    
@@ -151,14 +164,18 @@ def Read_RI_from_File(lam, matname):
         a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
-        
-        
-        
+
         
 #        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g.txt')
 #        for i in range(0,len(a)):
 #            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m            
                   
+    elif (matname=='Al'): 
+        print('Al is valid for lda = 0.12nm - 200um' )
+        a = np.loadtxt('wptherml/wptherml/datalib/Al_Rakic.txt')
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-6 # lda data in um, convert to m            
+      
     elif (matname=='TiO2'): 
         a = np.loadtxt('wptherml/wptherml/datalib/TiO2_Siefke.txt')
         
@@ -202,7 +219,11 @@ def Read_RI_from_File(lam, matname):
         a = np.loadtxt('wptherml/datalib/AlN_IR.txt')
         
     elif (matname=='Si'):
-        a = np.loadtxt('wptherml/wptherml/datalib/Si_Schinke.txt')
+        print('Si valid for 250nm-25um' )                 
+        a = np.loadtxt('wptherml/wptherml/datalib/Si_Schinke_Parker.txt')
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-6 # lda data in um, convert to m
+        
         
     elif (matname=='SiC'):
         a = np.loadtxt('wptherml/wptherml/datalib/SiC_Larruquert.txt')  
@@ -219,7 +240,129 @@ def Read_RI_from_File(lam, matname):
 
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
+
+    elif (matname=='AlOxChar_2A'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
         
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_2a_v6_nk.txt')    
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_2a_v7_increased_oscillators.txt')  
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v15_regular_permitivity_3p0ff_2857thick.txt')
+        
+        
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v14_low_permitivity_25p8ff_2912nmthick.txt')
+        
+        
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003        
+
+    elif (matname=='AlOxChar_1A'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_g_1a_v3_nk.txt')  
+        #a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v15_regular_permitivity_3p0ff_2857thick.txt')
+        
+        
+        a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v14_low_permitivity_25p8ff_2912nmthick.txt')
+        
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in um, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003   
+
+    elif (matname=='AlOxChar_1C_Oxide'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_oxide_v1_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003  
+
+    elif (matname=='AlOxChar_1C_Si'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_si_v1_nk.txt')  
+            
+    elif (matname=='AlOxChar_2C_Oxide'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/oxide_on_2c_v6_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003               
+            
+    elif (matname=='AlOxChar_2C_Si'):
+        # This is a custom bulk visible SiO2 properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+        # This is a custom bulk visible SiO2 properties with no broadband absorption. 
+        # There is some UV absorption to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_3_nk.txt')        
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar1c_si_v1_nk.txt')    
+
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
+#            if a[i][0] > 1000*1e-9:
+#               a[i][2] = a[i][2]+0.003            
+       
     elif (matname=='RC0_1B_SiO2'):
         # This is a custom bulk visible SiO2 properties with broadband absorption. 
         # The goal of the broadband abs. is to match spectroscopic data.
@@ -284,9 +427,22 @@ def Read_RI_from_File(lam, matname):
         a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
-
-
-
+            
+    elif (matname=='RC1_1B_Si3N4'):
+        # This is a custom bulk visible Si properties 
+        # The purpose of this is because the measured Si substrate is more 
+        # reflective in the visible compared to the bulk material model that 
+        # was previously used. ALSO, the bulk SI data doesn't go far into the 
+        # IR! The loaded n,k data is from ellipsometery, which is saved in nm. 
+        # so we convert to SI units!
+        
+        a_vis = np.loadtxt('wptherml/wptherml/datalib/rc1_1b_si3n4_vis_nk.txt')        
+        a_ir = np.loadtxt('wptherml/wptherml/datalib/rc1_1b_si3n4_ir_nk.txt')    
+        
+        a = np.concatenate((a_vis,a_ir), axis=0) #Mat applicable for Vis and IR
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m            
+    
     else:
         a = np.loadtxt('wptherml/datalib/W_Palik_RI_f.txt')
 
@@ -305,7 +461,8 @@ def Read_RI_from_File(lam, matname):
     datk = datk[unique_idx]
         
     ### use linear interpolation/extrapolation
-    order = 2
+    order = 1
+    #print('Material interpolation order is ' + str(order))
     ### form the interpolator/extrapolator object for datn
     sn = InterpolatedUnivariateSpline(datlam, datn, k=order)
     ### form the interpolator/extrapolator object for datk
@@ -346,7 +503,16 @@ def Read_spectra_from_File(matname):
         
     elif (matname=='RC0_1D_Si'):  #Need to re-order HfN data
         vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_ref_vis_TR_FR_DR.txt')
-        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_ref_ir_R_and_T.txt')        
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC0_1D_ref_ir_R_and_T.txt') 
+        
+    elif (matname=='RC1_1B_Si3N4'):
+        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_sample_vis_TR_FR_DR_TT_FT_DT.txt')
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_sample_ir_R_and_T.txt')   
+        
+    elif (matname=='RC1_1B_Si'):  #Need to re-order HfN data
+        vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_ref_vis_TR_FR_DR_TT_FT_DT.txt')
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_ref_ir_R_and_T.txt')         
+          
     else:
         print('No known spectra selected')
 
@@ -385,7 +551,7 @@ def alloy(lambda_array, fraction, mat1, mat2, model):
             flag = 1
             f1 = (1-fraction)
             f2 = fraction
-            b = (2*f1-f2)*eps1 + (2*f2 - f1)*eps2
+            b = (2*f1-f2)*eps1 + (2*f2 - f1)*eps2  #b = -b He's skipping a step
             arg = 8*eps1*eps2 + b*b
             srarg = np.sqrt(arg)
             
@@ -394,9 +560,64 @@ def alloy(lambda_array, fraction, mat1, mat2, model):
             else:
                 flag = 1
                 
-            epsBG = (b+flag*srarg)/4.
+#            epsBGp = (b+srarg)/4
+#            epsBGm = (b-srarg)/4
+            epsBG = (b+flag*srarg)/4
             n[i] = np.sqrt(epsBG)
-    #### Default is Maxwell-Garnett        
+            
+#            if (np.imag(epsBGp)<0):
+#                n[i] = np.sqrt(epsBGm)
+#            else:
+#                n[i] = np.sqrt(epsBGp)
+              
+    
+    ## Test Generalized effective medium theory
+    elif (model=='parker'):
+       
+        v = 1
+        f = fraction
+        
+        if(isinstance(mat1, str)):
+            n_1 = Material_RI(lambda_array, mat1)
+        else:
+            n_1 = mat1
+            
+        n_2 = Material_RI(lambda_array, mat2)
+        
+        for i in range(0,len(lambda_array)):
+            if(isinstance(mat1, str)):
+                epse = n_1[i]*n_1[i]
+            else:
+                epse = n_1*n_1
+                
+            epsi = n_2[i]*n_2[i] 
+            # eps1 = inclusion, eps2 = enviroment
+            Y = epsi-epse
+            A = v
+            B = (3*epse+Y-(1+v)*f*Y)
+            C = -3*epse*Y*f
+            
+            arg = (B*B)-4*A*C
+            srarg = np.sqrt(arg)
+            
+            if (np.imag(arg)<0):
+                flag = -1
+            else:
+                flag = 1
+            
+            eps = (-B+flag*srarg)/(2*A)
+            n[i] = np.sqrt(epse+eps)
+            
+            
+#            x1 = epse+(-B+srarg)/(2*A)
+#            x2 = epse+(-B-srarg)/(2*A)
+#            
+#            if (np.imag(x1)<0):
+#                n[i] = np.sqrt(x2)
+#            else:
+#                n[i] = np.sqrt(x1)  
+    
+    #### Default is Maxwell-Garnett 
     else:
         if(isinstance(mat1, str)):
             n_1 = Material_RI(lambda_array, mat1)
@@ -568,6 +789,43 @@ def AM(lam):  ###lam is x SI is y
     #plt.show()
     return z
 
+def AM15d(lam):  ###lam is x SI is y
+    a = np.loadtxt('wptherml/wptherml/datalib/AM1.5d_ASTMG173.txt')
+    x = np.zeros(len(a))
+    y = np.zeros(len(a))
+
+    for i in range(0,len(a)):
+        x[i] = a[i][0]*10**(-9) # Convert nm to m
+        y[i] = a[i][1]*10**9 # Convert W/(m^2*nm) to W/(m^2*m)
+    datlam = x
+    dateqe = y
+    order = 1
+    s = InterpolatedUnivariateSpline(datlam, dateqe, k=order)
+    z = s(lam)
+    #plt.plot(x,y,'blue')
+    #plt.plot(lam, z, 'r--')
+    #plt.show()
+    return z
+
+def AM15g(lam):  ###lam is x SI is y
+    a = np.loadtxt('wptherml/wptherml/datalib/AM1.5g_ASTMG173.txt')
+    x = np.zeros(len(a))
+    y = np.zeros(len(a))
+
+    for i in range(0,len(a)):
+        x[i] = a[i][0]*10**(-9) # Convert nm to m
+        y[i] = a[i][1]*10**9 # Convert W/(m^2*nm) to W/(m^2*m)
+    datlam = x
+    dateqe = y
+    order = 1
+    s = InterpolatedUnivariateSpline(datlam, dateqe, k=order)
+    z = s(lam)
+    #plt.plot(x,y,'blue')
+    #plt.plot(lam, z, 'r--')
+    #plt.show()
+    return z
+
+
 def ATData(lam):
     # This transmittance is probably from Gemini Observatory and is probably wrong for normal areas in the USA
     #a = np.loadtxt('wptherml/wptherml/datalib/ATrans.txt')
@@ -669,23 +927,23 @@ def CIE(lam):
     return cie
 
 ### Methods for plotting index data
-    
+#    
 #def plot_index(self, lam, material):
 #    lam = self.lambda_array
 #    lam_min = np.min(lam)
 #    lam_max = np.max(lam)
 #    
 #    if (lam_min < 1000e-9):
-#        self.plot_index_vis(layer)
+#        self.plot_index_vis()
 #    
 #    if (lam_max > 1000e-9):
-#        self.plot_index_ir(layer)
+#        self.plot_index_ir()
 #    return 1
 #
 #            
-#def plot_index_vis(self, layer):
+#def plot_index_vis(self):
 #    lam = self.lambda_array
-#    RI = self.layer_ri(layer)
+#    
 #    lam_min = np.min(lam)
 #    lam_max = np.max(lam)
 #    nm = 1e+9  
@@ -704,7 +962,7 @@ def CIE(lam):
 #    plt.show()
 #    return 1
 #
-#def plot_index_ir(self,layer):
+#def plot_index_ir(self):
 #    lam = self.lambda_array
 #    RI = self.layer_ri(layer)
 #    lam_min = np.min(lam)
@@ -776,4 +1034,4 @@ def CIE(lam):
 #            plt.title('Refractive index in the IR')
 #            plt.show()
 #        return 1
-           
+#           
