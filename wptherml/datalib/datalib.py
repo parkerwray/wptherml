@@ -579,7 +579,7 @@ def ATData(lam):
     y = np.zeros(len(a))
 
     for i in range(0,len(a)):
-        # x[i] = a[i][0]*1e-6 #convert to SI unit from um if using ATrans.txt
+        #x[i] = a[i][0]*1e-6 #convert to SI unit from um if using ATrans.txt
         x[i] = a[i][0]*1e-9 #convert to SI unit from nm if using Lowtran7... .txt
         y[i] = a[i][1]
     #plt.plot(x,y)
