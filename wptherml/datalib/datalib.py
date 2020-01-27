@@ -82,6 +82,10 @@ def Material_RI(lam, arg):
           ):
         n = Read_RI_from_File(lam, arg)
    
+    elif (arg=='AlOxChar3_1A'
+          or arg=='AlOxChar3_1C_Au'):
+        n = Read_RI_from_File(lam, arg)  
+    
     elif (arg=='AlOxChar_2A'
           or arg=='AlOxChar_2C_Oxide'
           or arg=='AlOxChar_2C_Si'):
@@ -241,6 +245,51 @@ def Read_RI_from_File(lam, matname):
     elif (matname=='W_Al2O3_Alloy'):
         a = np.loadtxt('wptherml/datalib/W_Al2O3_Alloy.txt')
 
+
+###############################################################################
+###################  PARKER'S MEASURED NANOPARTICLE FILMS #####################
+###############################################################################
+
+        
+    elif (matname=='AlOxChar3_1A'):
+        # This is a custom bulk IR AlOx properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+                  
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar3_1a_ir_nk_v19_v2.txt')
+        # NOTE: Visible spectra data still needs to be defined!!
+        
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-6 # lda data in um, convert to m
+        print(matname, 'data is valid for', min(a[:,0]), 'm to' ,max(a[:,0]), 'm')
+        
+    elif (matname=='AlOxChar3_1C_Au'):
+        # This is a custom bulk IR AlOx properties with broadband absorption. 
+        # The goal of the broadband abs. is to match spectroscopic data.
+        # Still need bruggeman model 
+        # wavelength is in nm, so we convert to SI
+        #a = np.loadtxt('wptherml/wptherml/datalib/rc0_1b_sio2_1_nk.txt')
+        
+                  
+        a = np.loadtxt('wptherml/wptherml/datalib/aloxchar3_1c_ir_nk_v23.txt')
+        # NOTE: Visible spectra data still needs to be defined!!
+        
+        for i in range(0,len(a)):
+            a[i][0] = a[i][0]*1e-6 # lda data in um, convert to m
+        print(matname, 'data is valid for', min(a[:,0]), 'm to' ,max(a[:,0]), 'm')
+
+
+
+
+
+    
+
+
+
+
     elif (matname=='AlOxChar_2A'):
         # This is a custom bulk visible SiO2 properties with broadband absorption. 
         # The goal of the broadband abs. is to match spectroscopic data.
@@ -261,11 +310,10 @@ def Read_RI_from_File(lam, matname):
         
         a = np.loadtxt('wptherml/wptherml/datalib/al2o3_ir_v14_low_permitivity_25p8ff_2912nmthick.txt')
         
-        
+       
         for i in range(0,len(a)):
             a[i][0] = a[i][0]*1e-9 # lda data in nm, convert to m
-#            if a[i][0] > 1000*1e-9:
-#               a[i][2] = a[i][2]+0.003        
+        
 
     elif (matname=='AlOxChar_1A'):
         # This is a custom bulk visible SiO2 properties with broadband absorption. 
@@ -513,13 +561,28 @@ def Read_spectra_from_File(matname):
         vis = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_ref_vis_TR_FR_DR_TT_FT_DT.txt')
         ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/RC1_1B_ref_ir_R_and_T.txt')         
           
+    elif (matname=='AlOxChar3_1A_AlOx'):  #Need to re-order HfN data
+        vis = []
+        ir = np.loadtxt('wptherml/wptherml/datalib/measured_spectras/aloxchar3_1a_a.txt')         
+                  
     else:
         print('No known spectra selected')
-
-    for i in range(0,len(vis)):
-        vis[i][0] = vis[i][0]*1e-9 # lda data in nm, convert to m
-    for i in range(0,len(ir)):
-        ir[i][0] = ir[i][0]*1e-9 # lda data in nm, convert to m
+        
+    if (vis != []):  
+    ### in case of duplicate wavelength values...     
+        datlam_vis, unique_idx_vis = np.unique(vis[:,0], return_index=True)
+        vis = vis[unique_idx_vis,:]
+    
+        for i in range(0,len(vis)):
+            vis[i,0] = vis[i,0]*1e-9 # lda data in nm, convert to m
+        
+    if (ir != []):  
+    ### in case of duplicate wavelength values...     
+        datlam_ir, unique_idx_ir = np.unique(ir[:,0], return_index=True)
+        ir = ir[unique_idx_ir,:]   
+        
+        for i in range(0,len(ir)):
+            ir[i,0] = ir[i,0]*1e-9 # lda data in nm, convert to m
 
     return vis, ir 
 
