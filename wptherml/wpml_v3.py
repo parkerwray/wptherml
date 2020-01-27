@@ -498,7 +498,8 @@ class multilayer:
         self.luminous_efficacy_val = self.luminous_efficiency_val * 683
         return 1
     
-    ''' METHODS FOR COOLINGLIB !!! '''
+    ''' METHODS FOR COOLINGLIB !!! ''' 
+    " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "
     def cooling_power(self, radiative = True, atmospheric = True, solar = True, total = True):
        
         if radiative:
